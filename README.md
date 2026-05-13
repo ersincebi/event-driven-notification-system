@@ -10,7 +10,7 @@ A scalable, event-driven notification API handling SMS, Email, and Push channels
 
 ## Core Features
 - **Priority Queues:** Workers process queues in high -> normal -> low
-- **Rate Limiting:** Strict 100 msgs/sec per-channel limits utilizing Redis throttling.
+- **Rate Limiting:** Strict 1000 msgs/sec per-channel limits utilizing Redis throttling.
 - **Idempotency:** Safe handling of duplicate requests via idempotency_key without returning 422s.
 - **Atomic Cancellation:** In-flight status checks prevent race conditions when canceling pending jobs.
 - **Observability:** X-Correlation-ID header tracking across all layers, structured logging, and dedicated health/metric endpoints.

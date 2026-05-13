@@ -2,19 +2,19 @@
 
 namespace App\Services;
 
-use App\Models\Notification;
 use App\Enums\NotificationStatus;
-use Illuminate\Support\Str;
+use App\Jobs\ProcessNotification;
+use App\Models\Notification;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use App\Jobs\ProcessNotification;
+use Illuminate\Support\Str;
 
 class NotificationService
 {
     public function createNotification(array $data, ?string $batchId = null): Notification
     {
-        if (!empty($data['idempotency_key'])) {
+        if (! empty($data['idempotency_key'])) {
             $existing = Notification::where('idempotency_key', $data['idempotency_key'])->first();
             if ($existing !== null) {
                 return $existing;
@@ -40,6 +40,7 @@ class NotificationService
             foreach ($notificationsData as $data) {
                 $created->push($this->createNotification($data, $batchId));
             }
+
             return $created;
         });
     }
@@ -57,15 +58,15 @@ class NotificationService
     {
         $query = Notification::query();
 
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
 
-        if (!empty($filters['channel'])) {
+        if (! empty($filters['channel'])) {
             $query->where('channel', $filters['channel']);
         }
 
-        if (!empty($filters['start_date']) && !empty($filters['end_date'])) {
+        if (! empty($filters['start_date']) && ! empty($filters['end_date'])) {
             $query->whereBetween('created_at', [$filters['start_date'], $filters['end_date']]);
         }
 

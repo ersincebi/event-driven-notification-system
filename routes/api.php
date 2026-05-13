@@ -1,9 +1,8 @@
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\ObservabilityController;
+use Illuminate\Support\Facades\Route;
 
 Route::prefix('notifications')->group(function () {
     Route::post('/', [NotificationController::class, 'store']);

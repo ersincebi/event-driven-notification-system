@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\NotificationStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Notification;
-use App\Enums\NotificationStatus;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Log;
-use Exception;
+use Illuminate\Support\Facades\Redis;
 
 class ObservabilityController extends Controller
 {
@@ -18,9 +18,9 @@ class ObservabilityController extends Controller
         $prefix = config('database.redis.options.prefix', '');
 
         $queues = [
-            'high' => (int) Redis::connection()->llen($prefix . 'queues:high'),
-            'normal' => (int) Redis::connection()->llen($prefix . 'queues:normal'),
-            'low' => (int) Redis::connection()->llen($prefix . 'queues:low'),
+            'high' => (int) Redis::connection()->llen($prefix.'queues:high'),
+            'normal' => (int) Redis::connection()->llen($prefix.'queues:normal'),
+            'low' => (int) Redis::connection()->llen($prefix.'queues:low'),
         ];
 
         $total = max(Notification::count(), 1);
@@ -47,9 +47,9 @@ class ObservabilityController extends Controller
                 'avg_seconds_last_hour' => round($latencySeconds, 3),
             ],
             'totals' => [
-                'all'       => Notification::count(),
+                'all' => Notification::count(),
                 'completed' => $successCount,
-                'failed'    => $failedCount,
+                'failed' => $failedCount,
             ],
         ]);
     }
@@ -73,9 +73,11 @@ class ObservabilityController extends Controller
     {
         try {
             DB::connection()->getPdo();
+
             return true;
         } catch (Exception $e) {
             Log::error($e->getMessage());
+
             return false;
         }
     }
@@ -84,9 +86,11 @@ class ObservabilityController extends Controller
     {
         try {
             Redis::connection()->ping();
+
             return true;
         } catch (Exception $e) {
             Log::error($e->getMessage());
+
             return false;
         }
     }

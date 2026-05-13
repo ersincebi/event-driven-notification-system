@@ -67,7 +67,7 @@ class NotificationController extends Controller
         $notification = Notification::findOrFail($id);
         $canceled = $this->notificationService->cancelNotification($notification);
 
-        if (!$canceled) {
+        if (! $canceled) {
             return response()->json([
                 'error' => 'api cannot cancel notification',
             ], 400);

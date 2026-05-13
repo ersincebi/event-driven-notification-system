@@ -2,16 +2,16 @@
 
 namespace App\Jobs;
 
-use App\Models\Notification;
 use App\Enums\NotificationStatus;
+use App\Models\Notification;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Support\Facades\Redis;
 
 class ProcessNotification implements ShouldQueue
 {
@@ -46,10 +46,10 @@ class ProcessNotification implements ShouldQueue
             return;
         }
 
-        $throttleKey = 'channel:' . $this->notification->channel->value;
+        $throttleKey = 'channel:'.$this->notification->channel->value;
 
         Redis::throttle($throttleKey)
-            ->allow(100)
+            ->allow(1000)
             ->every(1)
             ->then(
                 fn () => $this->processDelivery(),
@@ -79,10 +79,11 @@ class ProcessNotification implements ShouldQueue
                     'external_id' => $response->json('messageId'),
                     'delivered_at' => now(),
                 ]);
+
                 return;
             }
 
-            $this->handleFailure('Invalid response status: ' . $response->status());
+            $this->handleFailure('Invalid response status: '.$response->status());
         } catch (\Throwable $e) {
             $this->handleFailure($e->getMessage());
         }
@@ -91,7 +92,7 @@ class ProcessNotification implements ShouldQueue
     private function handleFailure(string $errorMessage): void
     {
         Log::error('DeliveryFailed', [
-            'error'   => $errorMessage,
+            'error' => $errorMessage,
             'attempt' => $this->attempts(),
         ]);
 
@@ -99,6 +100,7 @@ class ProcessNotification implements ShouldQueue
 
         if ($this->attempts() >= $this->tries) {
             $this->notification->update(['status' => NotificationStatus::FAILED]);
+
             return;
         }
 

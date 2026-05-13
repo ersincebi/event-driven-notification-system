@@ -1,9 +1,9 @@
 <?php
 
+use App\Http\Middleware\CorrelationIdMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use App\Http\Middleware\CorrelationIdMiddleware;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(

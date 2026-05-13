@@ -9,6 +9,7 @@ use App\Models\Notification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class NotificationApiTest extends TestCase
@@ -132,7 +133,7 @@ class NotificationApiTest extends TestCase
 
     public function test_show_returns_404_for_unknown_id(): void
     {
-        $this->getJson('/api/notifications/' . \Illuminate\Support\Str::uuid())
+        $this->getJson('/api/notifications/'.Str::uuid())
             ->assertStatus(404);
     }
 
@@ -158,7 +159,7 @@ class NotificationApiTest extends TestCase
 
     public function test_can_show_batch(): void
     {
-        $batchId = (string) \Illuminate\Support\Str::uuid();
+        $batchId = (string) Str::uuid();
         Notification::factory()->count(3)->create(['batch_id' => $batchId]);
         Notification::factory()->create();
 
@@ -196,7 +197,7 @@ class NotificationApiTest extends TestCase
         Notification::factory()->create(['created_at' => now()->subDay()]);
 
         $start = now()->subDays(2)->toIso8601String();
-        $end   = now()->toIso8601String();
+        $end = now()->toIso8601String();
 
         $this->getJson("/api/notifications?start_date={$start}&end_date={$end}")
             ->assertStatus(200)

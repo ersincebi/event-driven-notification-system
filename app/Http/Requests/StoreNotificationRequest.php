@@ -2,11 +2,11 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\NotificationChannel;
+use App\Enums\NotificationPriority;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use App\Enums\NotificationChannel;
 use Illuminate\Validation\Rule;
-use App\Enums\NotificationPriority;
 
 class StoreNotificationRequest extends FormRequest
 {
