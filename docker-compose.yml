@@ -1,0 +1,40 @@
+services:
+    app:
+        build: .
+        volumes:
+            - .:/var/www/html
+        depends_on:
+            - mysql
+            - redis
+
+    nginx:
+        image: nginx:alpine
+        ports:
+            - "8000:80"
+        volumes:
+            - .:/var/www/html
+            - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf
+        depends_on:
+            - app
+
+    mysql:
+        image: mysql:8.0
+        environment:
+            MYSQL_DATABASE: notify_db
+            MYSQL_ROOT_PASSWORD: root
+        volumes:
+            - db_data:/var/lib/mysql
+
+    redis:
+        image: redis:alpine
+
+    worker:
+        build: .
+        command: php artisan queue:work --queue=high,normal,low
+        volumes:
+            - .:/var/www/html
+        depends_on:
+            - redis
+
+volumes:
+    db_data:
