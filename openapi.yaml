@@ -1,0 +1,147 @@
+openapi: 3.0.0
+info:
+  title: Event-Driven Notification System API
+  version: 1.0.0
+  description: API documentation for the scalable notification system.
+servers:
+  - url: http://localhost:8000/api
+
+paths:
+  /notifications:
+    post:
+      tags: [Notifications]
+      summary: Create a single notification
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationInput'
+      responses:
+        '201':
+          description: Notification created
+    get:
+      tags: [Notifications]
+      summary: List notifications with filters and pagination
+      parameters:
+        - in: query
+          name: status
+          schema: { type: string }
+        - in: query
+          name: channel
+          schema: { type: string }
+        - in: query
+          name: start_date
+          schema: { type: string, format: date }
+        - in: query
+          name: end_date
+          schema: { type: string, format: date }
+        - in: query
+          name: per_page
+          schema: { type: integer, default: 15 }
+      responses:
+        '200':
+          description: Paginated list of notifications
+
+  /notifications/batch:
+    post:
+      tags: [Notifications]
+      summary: Create up to 1000 notifications in a single batch
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [notifications]
+              properties:
+                notifications:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/NotificationInput'
+      responses:
+        '201':
+          description: Batch notifications created
+
+  /notifications/{id}:
+    get:
+      tags: [Notifications]
+      summary: Get a notification by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Notification details
+        '404':
+          description: Not found
+
+  /notifications/batch/{batchId}:
+    get:
+      tags: [Notifications]
+      summary: Get all notifications in a batch
+      parameters:
+        - in: path
+          name: batchId
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: List of notifications in the batch
+
+  /notifications/{id}/cancel:
+    patch:
+      tags: [Notifications]
+      summary: Cancel a pending notification
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Notification canceled successfully
+        '400':
+          description: Cannot cancel notification (not in pending state)
+
+  /system/health:
+    get:
+      tags: [System]
+      summary: Check system dependencies (DB, Redis)
+      responses:
+        '200':
+          description: System is healthy
+        '503':
+          description: One or more services are down
+
+  /system/metrics:
+    get:
+      tags: [System]
+      summary: Get current queue depths and success/failure rates
+      responses:
+        '200':
+          description: System metrics
+
+components:
+  schemas:
+    NotificationInput:
+      type: object
+      required: [recipient, channel, content]
+      properties:
+        recipient:
+          type: string
+          example: "+905551234567"
+        channel:
+          type: string
+          enum: [sms, email, push]
+        content:
+          type: string
+        priority:
+          type: string
+          enum: [high, normal, low]
+          default: "normal"
+        idempotency_key:
+          type: string
+          nullable: true
