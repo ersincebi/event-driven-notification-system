@@ -3,7 +3,7 @@
 A scalable, event-driven notification API handling SMS, Email, and Push channels with priority queuing and rate limiting. Built with Laravel 11.
 
 ## Tech Stack
-- PHP 8.3 / Laravel 11
+- PHP 8.4 / Laravel 11
 - Redis (Priority Queues, Rate Limiting)
 - MySQL 8.0
 - Docker & Docker Compose
